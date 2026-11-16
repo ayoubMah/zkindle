@@ -1,0 +1,4 @@
+# one item per line, lines starting with # are ignored
+read one chapter
+CKA practice: 30 min
+ship zkindle v0.2
