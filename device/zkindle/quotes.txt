@@ -1,0 +1,21 @@
+# One quote per line; zkindle shows a different one each day. Add your own.
+We suffer more often in imagination than in reality. - Seneca
+Luck is what happens when preparation meets opportunity. - Seneca
+It is not that we have a short time to live, but that we waste a lot of it. - Seneca
+You have power over your mind, not outside events. Realize this, and you will find strength. - Marcus Aurelius
+The impediment to action advances action. What stands in the way becomes the way. - Marcus Aurelius
+Waste no more time arguing what a good man should be. Be one. - Marcus Aurelius
+First say to yourself what you would be; then do what you have to do. - Epictetus
+No man is free who is not master of himself. - Epictetus
+It does not matter how slowly you go as long as you do not stop. - Confucius
+The journey of a thousand miles begins with one step. - Lao Tzu
+Well done is better than well said. - Benjamin Franklin
+Energy and persistence conquer all things. - Benjamin Franklin
+Simplicity is the ultimate sophistication. - Leonardo da Vinci
+Genius is one percent inspiration and ninety-nine percent perspiration. - Thomas Edison
+Knowing is not enough; we must apply. - Goethe
+He who has a why to live can bear almost any how. - Nietzsche
+Whatever you are, be a good one. - Abraham Lincoln
+Make it work, make it right, make it fast. - Kent Beck
+Premature optimization is the root of all evil. - Donald Knuth
+Talk is cheap. Show me the code. - Linus Torvalds

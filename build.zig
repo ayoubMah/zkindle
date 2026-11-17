@@ -86,28 +86,37 @@ pub fn build(b: *std.Build) void {
     if (target.result.os.tag == .linux and target.result.abi.isMusl()) exe.linkage = .static;
     b.installArtifact(exe);
 
-    // ---- package: KUAL extension folder + zip --------------------------------------
-    const pkg = b.step("package", "Build zig-out/zkindle-kual.zip (unzip into /mnt/us/extensions on the Kindle)");
+    // ---- tests: the pure parts (config parser, widget logic) run on the host ----------
+    const test_step = b.step("test", "Run unit tests on the host");
+    for ([_][]const u8{ "src/config.zig", "src/widgets.zig" }) |file| {
+        const t = b.addTest(.{ .root_module = b.createModule(.{
+            .root_source_file = b.path(file),
+            .target = b.graph.host,
+        }) });
+        test_step.dependOn(&b.addRunArtifact(t).step);
+    }
+
+    // ---- package: zig-out/zkindle/ + zig-out/zkindle.tar.gz -------------------------
+    // Copy zkindle/ to /mnt/us/zkindle on the Kindle (or scp the tarball and untar it there),
+    // then run `sh /mnt/us/zkindle/install.sh` once.
+    const pkg = b.step("package", "Build zig-out/zkindle.tar.gz (untar into /mnt/us on the Kindle, then run install.sh)");
     const stage = b.addWriteFiles();
+    _ = stage.addCopyDirectory(b.path("device/zkindle"), "zkindle", .{});
     _ = stage.addCopyFile(exe.getEmittedBin(), "zkindle/bin/zkindle");
-    _ = stage.addCopyFile(b.path("kual/zkindle/config.xml"), "zkindle/config.xml");
-    _ = stage.addCopyFile(b.path("kual/zkindle/menu.json"), "zkindle/menu.json");
-    _ = stage.addCopyFile(b.path("kual/zkindle/run.sh"), "zkindle/run.sh");
-    _ = stage.addCopyFile(b.path("kual/zkindle/todo.txt"), "zkindle/todo.txt");
     _ = stage.addCopyFile(b.path("assets/fonts/IBMPlexMono-Regular.ttf"), "zkindle/fonts/IBMPlexMono-Regular.ttf");
     _ = stage.addCopyFile(b.path("assets/fonts/IBMPlexMono-Bold.ttf"), "zkindle/fonts/IBMPlexMono-Bold.ttf");
     _ = stage.addCopyFile(b.path("assets/fonts/OFL.txt"), "zkindle/fonts/OFL.txt");
 
-    // The zip is a convenience on Linux/macOS; on Windows just copy zig-out/extensions/zkindle.
-    if (b.graph.host.result.os.tag != .windows) {
-        const zip = b.addSystemCommand(&.{ "sh", "-c", "cd \"$0\" && chmod +x zkindle/run.sh zkindle/bin/zkindle && rm -f \"$1\" && zip -qr \"$1\" zkindle" });
-        zip.addDirectoryArg(stage.getDirectory());
-        const zip_out = zip.addOutputFileArg("zkindle-kual.zip");
-        pkg.dependOn(&b.addInstallFile(zip_out, "zkindle-kual.zip").step);
-    }
+    // bsdtar ships with Windows 10+, so this works from PowerShell too.
+    const tar = b.addSystemCommand(&.{ "tar", "-czf" });
+    const tar_out = tar.addOutputFileArg("zkindle.tar.gz");
+    tar.addArg("-C");
+    tar.addDirectoryArg(stage.getDirectory());
+    tar.addArg("zkindle");
+    pkg.dependOn(&b.addInstallFile(tar_out, "zkindle.tar.gz").step);
     pkg.dependOn(&b.addInstallDirectory(.{
         .source_dir = stage.getDirectory(),
         .install_dir = .prefix,
-        .install_subdir = "extensions",
+        .install_subdir = "",
     }).step);
 }
